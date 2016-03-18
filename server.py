@@ -1,14 +1,3 @@
-from flask import Flask
-from flask_restful import Resource, Api
+from app import app
 
-app = Flask(__name__)
-api = Api(app)
-
-class CreateUser(Resource):
-    def post(self):
-        return {'status': 'success'}
-
-api.add_resource(CreateUser, '/CreateUser')
-
-if __name__ == '__main__':
-    app.run(debug=True)
+app.run(host='127.0.0.1', port=8080, debug=True)
