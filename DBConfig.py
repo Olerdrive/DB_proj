@@ -1,0 +1,5 @@
+DB_USER = "db_user"
+DB_PASSWORD = "db_pass"
+DB_NAME = "projdb"
+DB_CHARSET = "utf8"
+DB_HOST = "localhost"
