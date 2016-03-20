@@ -5,7 +5,7 @@ from flask import jsonify
 from app.db_tools import *
 
 
-@app.route('/clear/', methods=['GET'])
+@app.route('/db/api/clear/', methods=['GET', 'POST'])
 def clear():
     connection = DBTools.connect()
     tables = ['Users', 'Forums', 'Threads', 'Posts', 'Followers', 'Subscriptions']
