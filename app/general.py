@@ -8,7 +8,7 @@ from app.db_tools import *
 @app.route('/db/api/clear/', methods=['GET', 'POST'])
 def clear():
     connection = DBTools.connect()
-    tables = ['Users', 'Forums', 'Threads', 'Posts', 'Followers', 'Subscriptions']
+    tables = ['Users', 'Forums', 'Threads', 'Posts', 'Follow', 'Subscribe']
     DBTools.execute(connection, "SET global foreign_key_checks = 1;")
     for table in tables:
         query = "TRUNCATE TABLE %s;" % table

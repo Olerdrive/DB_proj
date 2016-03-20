@@ -11,11 +11,38 @@ def connect():
 
 
 def execute(connection, query):
+    cursor = connection.cursor()
     try:
-        cursor = connection.cursor()
         cursor.execute(query)
         connection.commit()
+        cursor.close()
     except db.Error:
         connection.rollback()
-    cursor.close()
     return
+
+
+def execute_update(connection, query):
+    cursor = connection.cursor()
+    try:
+        cursor.execute(query)
+        last_id = cursor.lastrowid
+        cursor.close()
+        return last_id
+    except db.Error:
+        connection.rollback()
+        cursor.close()
+        return "Error"
+
+
+
+def execute_select(connection, query):
+    cursor = connection.cursor()
+    result = []
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+        cursor.close()
+        return result
+    except db.Error:
+        cursor.close()
+
