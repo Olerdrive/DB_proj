@@ -31,7 +31,7 @@ def details(connection, user_email):
     if len(user) == 0:
         raise Exception("User not found")
 
-    user = user_description(user)
+    user = serialize_u(user)
 
     query = 'SELECT followee FROM Follow WHERE follower = "%s"' % user_email
     following = db_tools.execute_select(connection, query)
@@ -78,7 +78,7 @@ def list_subsriptions(connection, user_email):
 
     response = []
 
-    if subscriptions is None:
+    if len(subscriptions) == 0:
         return response
 
     for sub in subscriptions:
@@ -100,7 +100,6 @@ def list_followers(connection, user_email, optional):
 
         if 'limit' in optional:
             query += " LIMIT " + optional['limit'][0]
-
 
     followers = db_tools.execute_select(connection, query)
     if len(followers) == 0:
@@ -185,7 +184,7 @@ def to_list(array):
     return lst
 
 
-def user_description(user):
+def serialize_u(user):
     user = user[0]
     response = {
         'about': user[2],

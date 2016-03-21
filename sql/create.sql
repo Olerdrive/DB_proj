@@ -58,10 +58,10 @@ CREATE TABLE `Threads` (
 ALTER TABLE `Threads` ADD INDEX idx_thread_ud (`user`, `date`);
 
 CREATE TABLE `Posts` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
-    `thread` INT(11) NOT NULL,
-    `user` CHAR (25) NOT NULL,
-    `forum` CHAR (35) NOT NULL,
+	`id` MEDIUMINT(11) NOT NULL AUTO_INCREMENT,
+    `thread` MEDIUMINT(11) NOT NULL,
+    `user` VARCHAR (25) NOT NULL,
+    `forum` VARCHAR (35) NOT NULL,
 
     `date` DATETIME NOT NULL,
     `message` TEXT NOT NULL,
@@ -69,8 +69,8 @@ CREATE TABLE `Posts` (
     `likes` SMALLINT NOT NULL DEFAULT 0,
     `points` SMALLINT NOT NULL DEFAULT 0,
 
-	`parent` INT(11),
-	`path` CHAR(50) NOT NULL DEFAULT '',
+	`parent` MEDIUMINT(11),
+	`path` VARCHAR(50) NOT NULL DEFAULT '',
 	`isHighlighted` BOOL NOT NULL DEFAULT False,
 	`isApproved` BOOL NOT NULL DEFAULT False,
 	`isEdited` BOOL NOT NULL DEFAULT False,
@@ -79,7 +79,7 @@ CREATE TABLE `Posts` (
 
 	PRIMARY KEY (`id`),
     KEY (`parent`),
-    CONSTRAINT FOREIGN KEY (`forum`) REFERENCES `Forum` (`short_name`) ON DELETE CASCADE,
+    CONSTRAINT FOREIGN KEY (`forum`) REFERENCES `Forums` (`short_name`) ON DELETE CASCADE,
     CONSTRAINT FOREIGN KEY (`user`) REFERENCES `Users` (`email`) ON DELETE CASCADE,
     CONSTRAINT FOREIGN KEY (`thread`) REFERENCES `Threads` (`id`) ON DELETE CASCADE
 ) ENGINE = MYISAM;
