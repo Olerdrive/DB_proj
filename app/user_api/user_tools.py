@@ -18,7 +18,7 @@ def create(connection, username, about, name, email, optional):
         'id': inserted_id,
         'isAnonymous': bool(isAnonymous),
         'name': name,
-        'username': username
+        'username': str(username)
     }
 
     return user
@@ -45,7 +45,6 @@ def details(connection, user_email):
     query = 'SELECT thread FROM Subscribe WHERE user = "%s"' % user_email
     subscriptions = db_tools.execute_select(connection, query)
     user["subscriptions"] = to_list(subscriptions)
-
 
     return user
 
@@ -102,7 +101,8 @@ def list_followers(connection, user_email, optional):
             query += " LIMIT " + optional['limit'][0]
 
     followers = db_tools.execute_select(connection, query)
-    if len(followers) == 0:
+
+    if followers is None or len(followers) == 0:
         return response
 
     for follower in followers:
@@ -114,7 +114,7 @@ def list_followers(connection, user_email, optional):
 def list_followees(connection, user_email, optional):
     query = 'SELECT followee FROM Follow WHERE follower = "%s"' % str(user_email[0])
     response = []
-    print query
+
     if len(optional) != 0:
         if 'since_id' in optional:
             query += " AND id >= " + optional['since_id'][0]
@@ -126,12 +126,11 @@ def list_followees(connection, user_email, optional):
             query += " LIMIT " + optional["limit"][0]
 
     followees = db_tools.execute_select(connection, query)
-    print followees
-    if len(followees) == 0:
+
+    if followees is None or len(followees) == 0:
         return response
 
     for followee in followees:
-        print str(followee[0])
         response.append(details(connection, str(followee[0])))
 
     return response
@@ -180,18 +179,19 @@ def to_list(array):
     if array is None:
         return lst
     for obj in array:
-        lst.append(obj[0])
+        lst.append(str(obj[0]))
     return lst
 
 
 def serialize_u(user):
     user = user[0]
+
     response = {
-        'about': user[2],
-        'email': user[1],
+        'about': str(user[2]),
+        'email': str(user[1]),
         'id': user[0],
         'isAnonymous': bool(user[3]),
-        'name': user[4],
-        'username': user[5]
+        'name': str(user[4]),
+        'username': str(user[5])
     }
     return response

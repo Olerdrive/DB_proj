@@ -49,22 +49,21 @@ def details(connection, short_name, optional):
 
 
 def list_users(connection, short_name, optional):
-
     query = 'SELECT user.id, user.name, user.email FROM Users " \
         "WHERE user.email IN (SELECT DISTINCT user FROM Posts WHERE forum = "%s"' % str(short_name)
-    if "since_id" in optional:
-        query += " AND users.id >= " + str(optional["since_id"][0])
-    if "order" in optional:
-        query += " ORDER BY user.name " + str(optional["order"][0])
-    if "limit" in optional:
-        query += " LIMIT " + str(optional["limit"][0])
-
     response = []
-    
-    try:
-        posts = db_tools.execute_select(connection, query)
-    except Exception as e:
-        print (e.message)
+
+    if len(optional) != 0:
+        if "since_id" in optional:
+            query += " AND users.id >= " + str(optional["since_id"][0])
+        if "order" in optional:
+            query += " ORDER BY user.name " + str(optional["order"][0])
+        if "limit" in optional:
+            query += " LIMIT " + str(optional["limit"][0])
+
+    posts = db_tools.execute_select(connection, query)
+
+    if posts is None or len(posts) == 0:
         return response
 
     for post in posts:

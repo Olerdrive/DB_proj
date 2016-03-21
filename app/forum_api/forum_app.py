@@ -91,9 +91,8 @@ def list_users():
     try:
         functions.check(params, ["forum"])
         response = forum_tools.list_users(
-            connection=connection, optional=optional, forum_shortname=params["forum"][0])
+            connection=connection, optional=optional, short_name=params["forum"][0])
     except Exception, e:
-        connection.close
         return json.dumps({"code": 3, "response": (e.message)})
     connection.close()
     return json.dumps({"code": 0, "response": response})
