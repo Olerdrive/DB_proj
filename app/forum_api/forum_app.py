@@ -3,6 +3,8 @@ from flask import jsonify, request, Blueprint
 from DBConfig import *
 from app import db_tools, functions
 import forum_tools
+from app.thread_api import thread_tools
+from app.post_api import post_tools
 import urlparse
 import json
 
@@ -15,17 +17,15 @@ def create_forum():
     params = request.json
 
     try:
-
         functions.check(params, ["name", "short_name", "user"])
         response = forum_tools.create(connection, params["name"], params[
                                 "short_name"], params["user"])
 
     except Exception as e:
-        connection.close()
-        return json.dumps({"code": 3, "response": (e.message)})
+        return jsonify({"code": 3, "response": (e.message)})
 
     connection.close()
-    return json.dumps({"code": 0, "response": response})
+    return jsonify({"code": 0, "response": response})
 
 
 @app.route('/details/', methods=['GET'])

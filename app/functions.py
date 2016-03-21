@@ -24,7 +24,7 @@ def check(params, required_params):
             raise Exception("missing " + item)
         if params[item] is not None:
             try:
-                params[item] = params[item].encode('utf-8mb4')
+                params[item] = params[item]
             except Exception:
                 continue
     return

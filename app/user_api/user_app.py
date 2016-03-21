@@ -3,6 +3,7 @@ from flask import jsonify, request, Blueprint
 from DBConfig import *
 from app import db_tools, functions
 import user_tools
+from app.post_api import post_tools
 import urlparse
 import json
 
@@ -19,16 +20,16 @@ def create_user():
 
     try:
         functions.check(params, ["username", "about", "name", "email"])
-        userr = user_tools.create(connection, params["username"], params["about"], params[
-                            "name"], params["email"], optional)
+        userr = user_tools.create(connection, params["username"], params["about"],
+                                  params["name"], params["email"], optional)
     except Exception as e:
         if e.message == "5":
             connection.close()
-            return json.dumps({"code": 5, "response": (e.message)})
+            return jsonify({"code": 5, "response": (e.message)})
         connection.close()
-        return json.dumps({"code": 1, "response": (e.message)})
+        return jsonify({"code": 1, "response": (e.message)})
     connection.close()
-    return json.dumps({"code": 0, "response": userr})
+    return jsonify({"code": 0, "response": userr})
 
 
 @app.route('/details/', methods=['GET'])
@@ -39,13 +40,13 @@ def details():
 
     try:
         functions.check(params, ["user"])
-        userr = user_tools.details(connection, str(params["user"][0]))
+        userr = user_tools.details(connection, params["user"][0])
     except Exception as e:
         connection.close()
-        return json.dumps({"code": 1, "response": e.message})
+        return jsonify({"code": 1, "response": e.message})
 
     connection.close()
-    return json.dumps({"code": 0, "response": userr})
+    return jsonify({"code": 0, "response": userr})
 
 
 @app.route('/follow/', methods=['POST'])
@@ -138,21 +139,21 @@ def list_followees():
     return json.dumps({"code": 0, "response": response})
 
 
-# @app.route('/db/api/user/listPosts/', methods=['GET'])
-# def user_listPosts():
-#
-#     connection = db_tools.connect()
-#
-#     params = functions.get_json(request)
-#
-#     optional = functions.get_optional(params, ["limit", "order", "since"])
-#
-#     try:
-#         functions.check(params, ["user"])
-#         response = post.posts_list(
-#             connection=connection, entity="user", params=optional, identifier=params["user"], related=[])
-#     except Exception as e:
-#         connection.close()
-#         return json.dumps({"code": 1, "response": (e.message)})
-#     connection.close()
-#     return json.dumps({"code": 0, "response": response})
+@app.route('//listPosts/', methods=['GET'])
+def user_listPosts():
+
+    connection = db_tools.connect()
+
+    params = functions.get_json(request)
+
+    optional = functions.get_optional(params, ["limit", "order", "since"])
+
+    try:
+        functions.check(params, ["user"])
+        response = post_tools.posts_list(
+            connection=connection, entity="user", params=optional, identifier=params["user"], related=[])
+    except Exception as e:
+        connection.close()
+        return json.dumps({"code": 1, "response": (e.message)})
+    connection.close()
+    return json.dumps({"code": 0, "response": response})

@@ -5,75 +5,81 @@ def create(connection, username, about, name, email, optional):
     isAnonymous = 0
     if "isAnonymous" in optional:
         isAnonymous = optional["isAnonymous"]
-    query = 'INSERT INTO Users (username, about, name, email, isAnonymous) VALUES ("{0}", "{1}", "{2}", "{3}", {4})'.format (
-        username, about, name, email, isAnonymous)
 
-    inserted_id = db_tools.execute_update(connection, query)
+    query = 'INSERT INTO Users (username, about, name, email, isAnonymous) VALUES (%s, %s, %s, %s, %s)'
+    params = (username, about, name, email, isAnonymous, )
+
+    inserted_id = db_tools.execute_update(connection, query, params)
+
     if inserted_id == "Error":
         raise Exception("5")
 
-    user = {
-        'about': about,
-        'email': email,
-        'id': inserted_id,
-        'isAnonymous': bool(isAnonymous),
-        'name': name,
-        'username': str(username)
-    }
+    user = db_tools.execute_select(
+        connection,
+        'SELECT id, email, about, isAnonymous, name, username FROM Users WHERE email = %s',
+        (email, )
+    )
 
-    return user
+    return serialize_u(user)
 
 
 def details(connection, user_email):
-    query = 'SELECT id, email, about, isAnonymous, name, username FROM Users WHERE email = "%s"' % user_email
-    user = db_tools.execute_select(connection, query)
+    query = 'SELECT id, email, about, isAnonymous, name, username FROM Users WHERE email = %s'
+    params = (user_email, )
+    user = db_tools.execute_select(connection, query, params)
 
     if len(user) == 0:
         raise Exception("User not found")
 
     user = serialize_u(user)
 
-    query = 'SELECT followee FROM Follow WHERE follower = "%s"' % user_email
-    following = db_tools.execute_select(connection, query)
+    query = 'SELECT followee FROM Follow WHERE follower = %s'
+    following = db_tools.execute_select(connection, query, params)
     user["following"] = to_list(following)
 
 
-    query ='SELECT follower FROM Follow WHERE followee = "%s"' % user_email
-    followers = db_tools.execute_select(connection,query)
+    query ='SELECT follower FROM Follow WHERE followee = %s'
+    followers = db_tools.execute_select(connection,query, params)
     user["followers"] = to_list(followers)
 
-    query = 'SELECT thread FROM Subscribe WHERE user = "%s"' % user_email
-    subscriptions = db_tools.execute_select(connection, query)
+    query = 'SELECT thread FROM Subscribe WHERE user = %s'
+    subscriptions = db_tools.execute_select(connection, query, params)
     user["subscriptions"] = to_list(subscriptions)
 
+    print user["username"]
     return user
 
 
 def follow(connection, email1, email2):
-    query = 'INSERT INTO Follow (follower, followee) VALUES ("%s", "%s")' % (email1, email2)
-    response = db_tools.execute_update(connection, query)
+    query = 'INSERT INTO Follow (follower, followee) VALUES (%s, %s)'
+    params = (email1, email2, )
+    response = db_tools.execute_update(connection, query, params)
 
     return details(connection, email1)
 
 
 def unfollow(connection, email1, email2):
+    query = 'DELETE FROM Follow WHERE follower = %s AND followee = %s'
+    params = (email1, email2, )
 
-    query = 'DELETE FROM Follow WHERE follower = "{}" AND followee = "{}"'.format(email1, email2)
-    response = db_tools.execute_update(connection, query)
+    response = db_tools.execute_update(connection, query, params)
 
     return details(connection, email1)
 
 
 def update_profile(connection, about, user_email, name):
-    query = 'UPDATE Users SET about = "{}", name = "{}" WHERE email = "{}"'.format(about, name, user_email)
-    response = db_tools.execute_update(connection, query)
+    query = 'UPDATE Users SET about = %s, name = %s WHERE email = %s'
+    params = (about, name, user_email, )
+
+    response = db_tools.execute_update(connection, query, params)
 
     return details(connection, user_email)
 
 
 def list_subsriptions(connection, user_email):
-    query = 'SELECT thread FROM Subscribe WHERE user = "%s"' % str(user_email[0])
-    subscriptions = db_tools.execute_select(connection, query)
+    query = 'SELECT thread FROM Subscribe WHERE user = %s'
+    params = (user_email, )
+    subscriptions = db_tools.execute_select(connection, query, params)
 
     response = []
 
@@ -87,7 +93,8 @@ def list_subsriptions(connection, user_email):
 
 
 def list_followers(connection, user_email, optional):
-    query = 'SELECT follower FROM Follow WHERE followee = "{}"'.format(str(user_email[0]))
+    query = 'SELECT follower FROM Follow WHERE followee = %s'
+    params = (user_email[0], )
     response = []
 
     if len(optional) != 0:
@@ -100,19 +107,20 @@ def list_followers(connection, user_email, optional):
         if 'limit' in optional:
             query += " LIMIT " + optional['limit'][0]
 
-    followers = db_tools.execute_select(connection, query)
+    followers = db_tools.execute_select(connection, query, params)
 
     if followers is None or len(followers) == 0:
         return response
 
     for follower in followers:
-        response.append(details(connection, str(follower[0])))
+        response.append(details(connection, follower[0]))
 
     return response
 
 
 def list_followees(connection, user_email, optional):
-    query = 'SELECT followee FROM Follow WHERE follower = "%s"' % str(user_email[0])
+    query = 'SELECT followee FROM Follow WHERE follower = %s'
+    params = (user_email[0], )
     response = []
 
     if len(optional) != 0:
@@ -125,20 +133,21 @@ def list_followees(connection, user_email, optional):
         if 'limit' in optional:
             query += " LIMIT " + optional["limit"][0]
 
-    followees = db_tools.execute_select(connection, query)
+    followees = db_tools.execute_select(connection, query, params)
 
     if followees is None or len(followees) == 0:
         return response
 
     for followee in followees:
-        response.append(details(connection, str(followee[0])))
+        response.append(details(connection, followee[0]))
 
     return response
 
 
 def list_posts(connection, user_email, optional):
     query = 'SELECT date, dislikes, forum, id, isApproved, isDeleted, isEdited, isHighlighted, isSpam, likes, ' \
-                    'message, parent, points, thread, user FROM Posts WHERE user = "{}"'.format(str(user_email[0]))
+                    'message, parent, points, thread, user FROM Posts WHERE user = %s'
+    params = (user_email[0], )
 
     if 'since' in optional:
         query += " AND date >= " + "\'" + optional['since'][0] + "\'"
@@ -149,7 +158,7 @@ def list_posts(connection, user_email, optional):
     if 'limit' in optional:
         query += " LIMIT " + "".join(optional["limit"][0])
 
-    posts = db_tools.execute_select(connection, query)
+    posts = db_tools.execute_select(connection, query, params)
 
     if len(posts) != 0:
         posts = posts[0]
@@ -179,19 +188,18 @@ def to_list(array):
     if array is None:
         return lst
     for obj in array:
-        lst.append(str(obj[0]))
+        lst.append(obj[0])
     return lst
 
 
 def serialize_u(user):
     user = user[0]
-
     response = {
-        'about': str(user[2]),
-        'email': str(user[1]),
+        'about': user[2],
+        'email': user[1],
         'id': user[0],
         'isAnonymous': bool(user[3]),
-        'name': str(user[4]),
-        'username': str(user[5])
+        'name': user[4],
+        'username': user[5]
     }
     return response

@@ -1,6 +1,7 @@
 from app import db_tools
 from app.user_api import user_tools
 
+
 def serialize_f(forum):
     forum = forum[0]
     response = {
@@ -14,28 +15,25 @@ def serialize_f(forum):
 
 
 def create(connection, name, short_name, user):
-    query = 'INSERT INTO Forums (name, short_name, user) VALUES ("%s", "%s", "%s")' % \
-                                                        (str(name), str(short_name), str(user))
+    query = 'INSERT INTO Forums (name, short_name, user) VALUES (%s, %s, %s)'
+    params = (name, short_name, user, )
+    inserted_id = db_tools.execute_update(connection, query, params)
 
-    print query
-    inserted_id = db_tools.execute_update(connection, query)
-    if inserted_id=="Error":
-        raise Exception("5")
+    query = 'SELECT id, name, short_name, user FROM Forums WHERE short_name = %s'
+    params = (short_name, )
 
-    response = {
-        'id': inserted_id,
-        'name': name,
-        'short_name': short_name,
-        'user': user
-    }
+    forum = db_tools.execute_select(connection, query)
+
+    response = serialize_f(forum)
 
     return response
 
 
 def details(connection, short_name, optional):
-    query = 'SELECT id, name, short_name, user FROM Forums WHERE short_name = "%s"' % str(short_name[0])
+    query = 'SELECT id, name, short_name, user FROM Forums WHERE short_name = %s'
+    params = (short_name[0], )
 
-    forum = db_tools.execute_select(connection, query)
+    forum = db_tools.execute_select(connection, query, params)
 
     if len(forum) == 0:
         raise Exception("Forum not found")
@@ -50,7 +48,8 @@ def details(connection, short_name, optional):
 
 def list_users(connection, short_name, optional):
     query = 'SELECT user.id, user.name, user.email FROM Users " \
-        "WHERE user.email IN (SELECT DISTINCT user FROM Posts WHERE forum = "%s"' % str(short_name)
+        "WHERE user.email IN (SELECT DISTINCT user FROM Posts WHERE forum = %s'
+    params = (short_name, )
     response = []
 
     if len(optional) != 0:
@@ -61,7 +60,7 @@ def list_users(connection, short_name, optional):
         if "limit" in optional:
             query += " LIMIT " + str(optional["limit"][0])
 
-    posts = db_tools.execute_select(connection, query)
+    posts = db_tools.execute_select(connection, query, params)
 
     if posts is None or len(posts) == 0:
         return response

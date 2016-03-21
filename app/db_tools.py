@@ -7,7 +7,8 @@ def connect():
                       user=DB_USER,
                       passwd=DB_PASSWORD,
                       db=DB_NAME,
-                      charset=DB_CHARSET)
+                      charset=DB_CHARSET,
+                      use_unicode=True)
 
 
 def execute(connection, query):
@@ -21,28 +22,28 @@ def execute(connection, query):
     return
 
 
-def execute_update(connection, query):
+def execute_update(connection, query, params):
     cursor = connection.cursor()
     try:
-        cursor.execute(query)
-        last_id = cursor.lastrowid
+        cursor.execute(query, params)
+        inserted_id = cursor.lastrowid
+        connection.commit()
         cursor.close()
-        return last_id
     except db.Error:
         connection.rollback()
         cursor.close()
         return "Error"
+    return inserted_id
 
 
-
-def execute_select(connection, query):
+def execute_select(connection, query, params):
+    result = None
     cursor = connection.cursor()
-    result = []
     try:
-        cursor.execute(query)
+        cursor.execute(query, params)
         result = cursor.fetchall()
         cursor.close()
-        return result
     except db.Error:
         cursor.close()
+    return result
 

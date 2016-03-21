@@ -1,8 +1,8 @@
 DB_USER = "root"
 DB_PASSWORD = "n4kden4kde"
 DB_NAME = "projdb"
-DB_CHARSET = "utf8"
-DB_HOST = "localhost"
+DB_CHARSET = 'utf8'
+DB_HOST = 'localhost'
 
 STATUS_CODE = {
     'OK': {'status_code': 0},
