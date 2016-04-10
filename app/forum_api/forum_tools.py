@@ -55,7 +55,7 @@ def list_users(connection, short_name, optional):
 
     if len(optional) != 0:
         if "since_id" in optional:
-            query += " AND users.id >= " + str(optional["since_id"][0])
+            query += " AND Users.id >= " + str(optional["since_id"][0])
         if "order" in optional:
             query += " ORDER BY name " + str(optional["order"][0])
         if "limit" in optional:
