@@ -22,7 +22,7 @@ def create(connection, name, short_name, user):
     query = 'SELECT id, name, short_name, user FROM Forums WHERE short_name = %s'
     params = (short_name, )
 
-    forum = db_tools.execute_select(connection, query)
+    forum = db_tools.execute_select(connection, query, params)
 
     response = serialize_f(forum)
 
@@ -31,8 +31,7 @@ def create(connection, name, short_name, user):
 
 def details(connection, short_name, optional):
     query = 'SELECT id, name, short_name, user FROM Forums WHERE short_name = %s'
-    params = (short_name[0], )
-
+    params = (short_name, )
     forum = db_tools.execute_select(connection, query, params)
 
     if len(forum) == 0:
@@ -41,22 +40,24 @@ def details(connection, short_name, optional):
     forum = serialize_f(forum)
 
     if "user" in optional:
-        forum["user"] = user_tools.details(connection, forum["user"])
+        try:
+            forum["user"] = user_tools.details(connection, forum["user"])
+        except Exception:
+            pass
 
     return forum
 
 
 def list_users(connection, short_name, optional):
-    query = 'SELECT user.id, user.name, user.email FROM Users " \
-        "WHERE user.email IN (SELECT DISTINCT user FROM Posts WHERE forum = %s'
-    params = (short_name, )
+    query = "SELECT id, name, email FROM Users WHERE email IN (SELECT DISTINCT user FROM Posts WHERE forum = %s)"
+    params = (str(short_name), )
     response = []
 
     if len(optional) != 0:
         if "since_id" in optional:
             query += " AND users.id >= " + str(optional["since_id"][0])
         if "order" in optional:
-            query += " ORDER BY user.name " + str(optional["order"][0])
+            query += " ORDER BY name " + str(optional["order"][0])
         if "limit" in optional:
             query += " LIMIT " + str(optional["limit"][0])
 

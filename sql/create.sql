@@ -93,9 +93,9 @@ ALTER TABLE `Post` ADD INDEX idx_post_ud (`user`, `date`);
 
 DROP TRIGGER IF EXISTS ins_post;
 CREATE TRIGGER ins_post
-BEFORE INSERT ON `Post`
+BEFORE INSERT ON `Posts`
 FOR EACH ROW
-UPDATE `Thread` SET `posts` = `posts` + 1 WHERE `id` = NEW.`thread`;
+UPDATE `Threads` SET `posts` = `posts` + 1 WHERE `id` = NEW.`thread`;
 
 DROP TRIGGER IF EXISTS del_post;
 

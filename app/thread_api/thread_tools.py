@@ -58,10 +58,16 @@ def details(connection, id, related):
     }
 
     if "user" in related:
-        thread["user"] = user_tools.details(connection, thread["user"])
+        try:
+            thread["user"] = user_tools.details(connection, thread["user"])
+        except Exception:
+            pass
+
     if "forum" in related:
-        thread["forum"] = forum_tools.details(
-            connection=connection, short_name=thread["forum"], optional=[])
+        try:
+            thread["forum"] = forum_tools.details(connection, short_name=thread["forum"], optional=[])
+        except Exception:
+            pass
 
     return thread
 
@@ -102,7 +108,7 @@ def subscribe(connection, user, thread):
     except Exception as e:
         print (e.message)
 
-    query = 'SELECT thread, user FROM Subscibe WHERE thread = %s, user = %s'
+    query = 'SELECT thread, user FROM Subscribe WHERE thread = %s AND user = %s'
 
     try:
         subscriptions = db_tools.execute_select(connection, query, params)
@@ -115,7 +121,7 @@ def subscribe(connection, user, thread):
 
 
 def unsubscribe(connection, user, thread):
-    query = 'DELETE FROM subscription WHERE thread = %s AND user = %s'
+    query = 'DELETE FROM Subscribe WHERE thread = %s AND user = %s'
     params = (thread, user, )
 
     try:
@@ -128,7 +134,7 @@ def unsubscribe(connection, user, thread):
 
 
 def open_close(connection, thread, isClosed):
-    query = 'UPDATE thread SET isClosed = %s WHERE id = %s'
+    query = 'UPDATE Threads SET isClosed = %s WHERE id = %s'
     params = (isClosed, thread, )
 
     try:
@@ -143,21 +149,25 @@ def open_close(connection, thread, isClosed):
 
 def restore_remove(connection, thread, isDeleted):
     posts = 0
-    if isDeleted == 0:
-        query = 'SELECT COUNT(id) FROM Posts WHERE thread = %s'
-        params = (thread, )
-        print query
-        posts = db_tools.execute_select(connection, query, params)[0][0]
+    current_state = db_tools.execute_select(connection,
+        "SELECT isDeleted FROM Threads WHERE id = %s", (thread,))[0][0]
 
-    query_thread = 'UPDATE thread SET isDeleted = %s, posts = %s WHERE id = %s'
-    query_post = 'UPDATE post SET isDeleted = %s WHERE thread = %s'
-    params = (isDeleted, posts, thread, )
 
-    try:
-        db_tools.execute_update(connection, query_thread, params)
-        db_tools.execute_update(connection, query_post, params)
-    except Exception as e:
-        print (e.message)
+    if current_state != isDeleted:
+        if isDeleted == 0:
+            query = 'SELECT COUNT(id) FROM Posts WHERE thread = %s'
+            params = (thread, )
+            posts = db_tools.execute_select(connection, query, params)[0][0]
+
+        query_thread = 'UPDATE Threads SET isDeleted = %s, posts = %s WHERE id = %s'
+        query_post = 'UPDATE Posts SET isDeleted = %s WHERE thread = %s'
+        params_thread = (isDeleted, posts, thread, )
+
+        try:
+            db_tools.execute_update(connection, query_thread, params_thread)
+            db_tools.execute_update(connection, query_post, (isDeleted, thread, ))
+        except Exception as e:
+            print (e.message)
 
     response = {"thread": thread}
 
@@ -182,6 +192,7 @@ def dec_posts(connection, post):
     thread = db_tools.execute_select(connection, query, params)[0][0]
 
     query = 'UPDATE Threads SET posts = posts - 1 WHERE id = %s'
+    params = (thread, )
     db_tools.execute_update(connection, query, params)
 
     return
@@ -217,7 +228,7 @@ def list(connection, required, optional, related):
     response = []
     if threads != ():
         for thread in threads:
-            k = {
+            thread = {
                 'date': str(thread[0]),
                 'dislikes': thread[1],
                 'forum': thread[2],
@@ -232,11 +243,17 @@ def list(connection, required, optional, related):
                 'title': thread[11],
                 'user': thread[12]
             }
+
             if "user" in related:
-                thread["user"] = user_tools.details(connection, thread["user"])
+                try:
+                    thread["user"] = user_tools.details(connection, thread["user"])
+                except Exception:
+                    pass
+
             if "forum" in related:
-                thread["forum"] = forum_tools.details(
-                    connection=connection, short_name=thread["forum"], optional=[])
-            response.append(k)
+                print thread["forum"]
+                thread["forum"] = forum_tools.details(connection, thread["forum"], [])
+
+            response.append(thread)
 
     return response

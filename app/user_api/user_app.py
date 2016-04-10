@@ -139,14 +139,14 @@ def list_followees():
     return json.dumps({"code": 0, "response": response})
 
 
-@app.route('//listPosts/', methods=['GET'])
-def user_listPosts():
+@app.route('/listPosts/', methods=['GET'])
+def listPosts():
 
     connection = db_tools.connect()
 
     params = functions.get_json(request)
 
-    optional = functions.get_optional(params, ["limit", "order", "since"])
+    optional = functions.get_optional(params, ["limit", "order", "since", "sort"])
 
     try:
         functions.check(params, ["user"])

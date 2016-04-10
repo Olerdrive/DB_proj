@@ -54,7 +54,8 @@ def list_posts():
         params,
         ["since",
          "limit",
-         "order"]
+         "order",
+         "sort"]
     )
     related = functions.get_related(params)
     try:

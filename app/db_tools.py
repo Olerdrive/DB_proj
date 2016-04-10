@@ -37,13 +37,14 @@ def execute_update(connection, query, params):
 
 
 def execute_select(connection, query, params):
-    result = None
+    result = []
     cursor = connection.cursor()
     try:
         cursor.execute(query, params)
         result = cursor.fetchall()
         cursor.close()
-    except db.Error:
+    except db.Error as e:
+        result = None
         cursor.close()
     return result
 
