@@ -205,12 +205,10 @@ def restore_remove(connection, post, isDeleted):
     query = "UPDATE Posts SET isDeleted = %s WHERE id = %s"
 
     params = (isDeleted, post)
-    print current_state != isDeleted
     if current_state != isDeleted:
         if isDeleted == 0:
             thread_tools.inc_posts(connection, post)
         else:
-            print "hereee"
             thread_tools.dec_posts(connection, post)
 
     db_tools.execute_update(connection, query, params)
