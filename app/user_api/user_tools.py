@@ -46,7 +46,6 @@ def details(connection, user_email):
     subscriptions = db_tools.execute_select(connection, query, params)
     user["subscriptions"] = to_list(subscriptions)
 
-    print user["username"]
     return user
 
 
