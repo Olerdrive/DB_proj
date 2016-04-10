@@ -251,7 +251,6 @@ def list(connection, required, optional, related):
                     pass
 
             if "forum" in related:
-                print thread["forum"]
                 thread["forum"] = forum_tools.details(connection, thread["forum"], [])
 
             response.append(thread)
