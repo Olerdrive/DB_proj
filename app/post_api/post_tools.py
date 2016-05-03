@@ -263,7 +263,7 @@ def check_order(string):
 def get_child_posts(connection, posts, sort, limit):
     cursor = connection.cursor()
 
-    query = 'SELECT * FROM Posts WHERE LEFT(path, 7) = %s ORDER BY path ASC'
+    query = 'SELECT * FROM Posts WHERE path LIKE %s ORDER BY path ASC'
 
     if sort == 'tree' and limit > 0:
         query += ' LIMIT %s'
@@ -275,7 +275,8 @@ def get_child_posts(connection, posts, sort, limit):
         if sort == 'tree':
             params = (enlength(str(id)), limit)
         elif sort == 'parent_tree':
-            params = (enlength(str(id)), )
+            like_prefix = enlength(str(id)) + "%"
+            params = (like_prefix, )
 
         cursor.execute(query, params)
         child_posts = cursor.fetchall()

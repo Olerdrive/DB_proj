@@ -70,7 +70,7 @@ CREATE TABLE `Posts` (
     `points` SMALLINT NOT NULL DEFAULT 0,
 
 	`parent` MEDIUMINT(11),
-	`path` VARCHAR(50) NOT NULL DEFAULT '',
+	`path` VARCHAR(113) NOT NULL DEFAULT '',
 	`isHighlighted` BOOL NOT NULL DEFAULT False,
 	`isApproved` BOOL NOT NULL DEFAULT False,
 	`isEdited` BOOL NOT NULL DEFAULT False,
