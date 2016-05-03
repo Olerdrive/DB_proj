@@ -85,10 +85,10 @@ CREATE TABLE `Posts` (
 ) ENGINE = MYISAM;
 
 
-ALTER TABLE `Post` ADD INDEX idx_post_fu (`forum`, `user`);
-ALTER TABLE `Post` ADD INDEX idx_post_fd (`forum`, `date`);
-ALTER TABLE `Post` ADD INDEX idx_post_td (`thread`, `date`);
-ALTER TABLE `Post` ADD INDEX idx_post_ud (`user`, `date`);
+ALTER TABLE `Posts` ADD INDEX idx_post_fu (`forum`, `user`);
+ALTER TABLE `Posts` ADD INDEX idx_post_fd (`forum`, `date`);
+ALTER TABLE `Posts` ADD INDEX idx_post_td (`thread`, `date`);
+ALTER TABLE `Posts` ADD INDEX idx_post_ud (`user`, `date`);
 
 
 DROP TRIGGER IF EXISTS ins_post;

@@ -5,7 +5,7 @@ from app import db_tools
 
 
 def enlength(str_id):
-    while len(str_id) < 5:
+    while len(str_id) < 7:
         str_id = "0" + str_id[0:]
 
     return str_id
@@ -263,7 +263,7 @@ def check_order(string):
 def get_child_posts(connection, posts, sort, limit):
     cursor = connection.cursor()
 
-    query = 'SELECT * FROM Posts WHERE LEFT(path, 5) = %s ORDER BY path ASC'
+    query = 'SELECT * FROM Posts WHERE LEFT(path, 7) = %s ORDER BY path ASC'
 
     if sort == 'tree' and limit > 0:
         query += ' LIMIT %s'
