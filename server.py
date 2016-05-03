@@ -11,8 +11,5 @@ app.register_blueprint(forum_app, url_prefix=API_PREFIX + '/forum')
 app.register_blueprint(thread_app, url_prefix=API_PREFIX + '/thread')
 app.register_blueprint(post_app, url_prefix=API_PREFIX + '/post')
 
-import logging
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
 
-app.run(host='127.0.0.1', port=8000, debug=True)
+app.run(host='127.0.0.1', port=8000, debug=False)
