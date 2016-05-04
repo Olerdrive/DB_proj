@@ -70,7 +70,7 @@ CREATE TABLE `Posts` (
     `points` SMALLINT NOT NULL DEFAULT 0,
 
 	`parent` MEDIUMINT(11),
-	`path` VARCHAR(113) NOT NULL DEFAULT '',
+	`path` VARCHAR(350) NOT NULL DEFAULT '',
 	`isHighlighted` BOOL NOT NULL DEFAULT False,
 	`isApproved` BOOL NOT NULL DEFAULT False,
 	`isEdited` BOOL NOT NULL DEFAULT False,
@@ -89,6 +89,7 @@ ALTER TABLE `Posts` ADD INDEX idx_post_fu (`forum`, `user`);
 ALTER TABLE `Posts` ADD INDEX idx_post_fd (`forum`, `date`);
 ALTER TABLE `Posts` ADD INDEX idx_post_td (`thread`, `date`);
 ALTER TABLE `Posts` ADD INDEX idx_post_ud (`user`, `date`);
+ALTER TABLE  `Posts` ADD INDEX idx_post_path (`path`(7));
 
 
 DROP TRIGGER IF EXISTS ins_post;
