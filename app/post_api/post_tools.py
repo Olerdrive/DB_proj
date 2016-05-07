@@ -273,9 +273,10 @@ def get_child_posts(connection, posts, sort, limit):
     for post in posts:
         id = post[0]
         if sort == 'tree':
-            params = (enlength(str(id)), limit)
+	    like_prefix = enlength(str(id))+'%'
+            params = (like_prefix, limit, )
         elif sort == 'parent_tree':
-            like_prefix = enlength(str(id)) + "%"
+            like_prefix = enlength(str(id))+'%'
             params = (like_prefix, )
 
         cursor.execute(query, params)
